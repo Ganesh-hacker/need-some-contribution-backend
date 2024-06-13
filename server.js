@@ -510,6 +510,22 @@ app.delete('/cart/:userid', async (req, res) => {
     }
   });
 
+  app.get('/v1/order/:userid', async (req, res) => {
+    const { userid} = req.params;
+    try {
+        const searchpro = await ordered.find({ userid: userid });
+        if (searchpro.length > 0) {
+            console.log(searchpro)
+            res.status(200).json(searchpro);
+        } else {
+            res.status(404).json({ message: 'No items found in the recent orders for this user' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 const PORT = process.env.PORT || 3005;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
