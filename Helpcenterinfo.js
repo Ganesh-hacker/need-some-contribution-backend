@@ -301,20 +301,7 @@ helpcenterinfo = [
         "question": "How do I update my contact number?",
         "answer": "To update your contact number, log into your account and go to the 'Profile' section. Click on 'Edit' and enter your new contact number. Save the changes to update your details."
     },
-    {
-        "id": 44,
-        "breadcrumb": "Home > Help Center > query_Are",
-        "category": "General",
-        "question": "Are there any restrictions on the quantity of medicines I can order?",
-        "answer": "Yes, there are quantity restrictions on certain medicines to ensure safe usage. These restrictions are based on guidelines provided by regulatory authorities. You will be notified if any restrictions apply to your order."
-    },
-    {
-        "id": 45,
-        "breadcrumb": "Home > Help Center > query_What",
-        "category": "General",
-        "question": "What should I do if I receive an expired product?",
-        "answer": "If you receive an expired product, please contact our customer support team immediately. We will arrange for a replacement or refund and ensure that such issues do not occur in the future."
-    },
+ ,
     {
         "id": 46,
         "breadcrumb": "Home > Help Center > query_Can",
@@ -329,28 +316,6 @@ helpcenterinfo = [
         "question": "What happens if an item is out of stock after I place my order?",
         "answer": "If an item is out of stock after you place your order, we will notify you via email or phone. You can choose to wait for our reply to your order"
     },
-
-    {
-        "id": 41,
-        "breadcrumb": "Home > Help Center > query_Can",
-        "category": "Payments",
-        "question": "Can I pay using multiple payment methods?",
-        "answer": "Currently, we only support one payment method per transaction. You can choose from a variety of payment options including credit/debit cards, net banking, UPI, and digital wallets."
-    },
-    {
-        "id": 42,
-        "breadcrumb": "Home > Help Center > query_What",
-        "category": "Returns",
-        "question": "What is the process for returning a product?",
-        "answer": "To return a product, go to the 'My Orders' section and select the order you want to return. Follow the instructions provided to initiate the return process. Our team will arrange for the product to be picked up and processed for a refund or replacement."
-    },
-    {
-        "id": 43,
-        "breadcrumb": "Home > Help Center > query_How",
-        "category": "Account",
-        "question": "How do I update my contact number?",
-        "answer": "To update your contact number, log into your account and go to the 'Profile' section. Click on 'Edit' and enter your new contact number. Save the changes to update your details."
-    },
     {
         "id": 44,
         "breadcrumb": "Home > Help Center > query_Are",
@@ -365,22 +330,6 @@ helpcenterinfo = [
         "question": "What should I do if I receive an expired product?",
         "answer": "If you receive an expired product, please contact our customer support team immediately. We will arrange for a replacement or refund and ensure that such issues do not occur in the future."
     },
-    {
-        "id": 46,
-        "breadcrumb": "Home > Help Center > query_Can",
-        "category": "Payments",
-        "question": "Can I use my insurance to pay for my order?",
-        "answer": "Currently, we do not accept insurance as a payment method. However, we are working on integrating this feature in the future to provide more payment options for our customers."
-    },
-    {
-        "id": 47,
-        "breadcrumb": "Home > Help Center > query_What",
-        "category": "Ordering",
-        "question": "What happens if an item is out of stock after I place my order?",
-        "answer": "If an item is out of stock after you place your order, we will notify you via email or phone. You can choose to wait for the response"
-    },
-
-
 
 ]
 
