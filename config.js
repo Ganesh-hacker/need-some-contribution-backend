@@ -70,40 +70,18 @@ const CartproductsSchema= new mongoose.Schema({
 const PurchproductsSchema= new mongoose.Schema({
     
     
-    id: {
-        type: String,
-        required: true
-    },
     userid:{
         type:String,
         required:true
     },
-    name:{
+    addressid:{
         type:String,
         required:true
     },
-    imageUrl: {
-        type: String,
-        required: true
+    totalprice:{
+        type:Number,
+        required:true
     },
-    manufacturers: {
-        type: String,
-        required: true
-    },
-    MRP: {
-        type: Number,
-        required: true
-    },
-    
-    price: {
-        type: Number,
-        required: true
-      },
-      qty: {
-        type: Number,
-        required: true,
-        default: 1
-      },
       date: { 
         type: Date, 
         default: Date.now 
@@ -152,10 +130,52 @@ const AddressSchema= new mongoose.Schema({
 
 });
 
+const orderSchema= new mongoose.Schema({
+    
+    
+    userid:{
+        type:String,
+        required:true
+    },
+    address:{
+        type:Object,
+        required:true
+    },
+    orderid:{
+        type:String,
+        required:true
+    },
+    upi:{
+        type:String,
+        required:true
+    },
+    cartData:{
+        type:Object,
+        required:true
+    },
+    totalprice:{
+        type:Number,
+        required:true
+    },
+      date: { 
+        type: Date, 
+        default: Date.now 
+    },
+    cancel:{
+        type:Boolean,
+        default:true
+    },
+    status:{
+        type:Number,
+        default:1
+    }
+  
+});
 
 
 const Logindetails= new mongoose.model("Logindetails", LoginSchema);
 const cartproducts=new mongoose.model("cartproducts",CartproductsSchema)
 const purchproducts=new mongoose.model("purchproducts",PurchproductsSchema)
 const addresslist=new mongoose.model("addresslist", AddressSchema)
-module.exports= {Logindetails,cartproducts,purchproducts,addresslist};
+const ordered=new mongoose.model("orderupi", orderSchema)
+module.exports= {Logindetails,cartproducts,purchproducts,addresslist,ordered};
