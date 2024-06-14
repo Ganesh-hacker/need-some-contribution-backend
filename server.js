@@ -2,7 +2,7 @@
 
 const express = require('express');
 const twilio = require('twilio');
-const { Logindetails, cartproducts, purchproducts, addresslist } = require("./config");
+const { Logindetails, cartproducts, purchproducts, addresslist,ordered } = require("./config");
 require('dotenv').config();  // Ensure this is at the top
 const { helpcenterinfo } = require('./Helpcenterinfo');
 const { Medicines } = require('./Medicine_info');
@@ -238,7 +238,7 @@ app.delete("/cart/:id/:userid", async (req, res) => {
     const itemId = req.params.id;
     const userId = req.params.userid;
     try {
-        const deletedItem = await cartproducts.findOneAndDelete({ _id: itemId, userid: userId });
+        const deletedItem = await cartproducts.findOneAndDelete({  _id: itemId, userid: userId });
         if (!deletedItem) {
             return res.status(404).json({ message: "Item not found" });
         }
@@ -277,29 +277,22 @@ app.patch('/cart/:itemId/:userId', async (req, res) => {
   
 
 app.post('/checkout', async (req, res) => {
-    const { userId, items, total } = req.body;
+    const { userid, addressid, totalprice } = req.body;
 
-    if (!userId || !items || !total) {
+    if (!userid || !addressid || !totalprice) {
         return res.status(400).json({ message: "Invalid request" });
     }
 
     try {
-        const purchasePromises = items.map(item => {
             const newPurchasedProduct = new  purchproducts({
-                id: item.id,
-                userid: userId,
-                name: item.name,
-                imageUrl: item.imageUrl,
-                manufacturers: item.manufacturers,
-                MRP: item.MRP,
-                price: item.price,
-                qty: item.qty
+                
+                userid: userid,
+                addressid:addressid,
+                totalprice:totalprice
             });
-            return newPurchasedProduct.save();
-        });
-
-        await Promise.all(purchasePromises);
-        res.status(201).json({ message: "Checkout successful" });
+            
+         newPurchasedProduct.save();
+        res.status(201).json({ success:true,orderid: newPurchasedProduct._id });
     } catch (error) {
         console.error("Error during checkout:", error);
         res.status(500).json({ message: "Internal server error. Please try again later." });
@@ -407,7 +400,131 @@ app.delete("/address/:_id/:userid", async (req, res) => {
     }
 });
 
+app.post('/proceed',async (req,res) =>{
+    const { userid, address, totalprice,orderid,upi,cartData } = req.body;
 
+    if (!userid  || !orderid) {
+        return res.status(400).json({ message: "Invalid request" });
+    }
+    
+    try {
+        const neworder= new  ordered({
+            userid,
+          address,
+          orderid,
+           upi,
+          cartData,
+          totalprice,
+            
+        });
+        
+     neworder.save();
+    res.status(201).json({ success:true, orderid: neworder.orderid });
+} catch (error) {
+    console.error("Error during checkout:", error);
+    res.status(500).json({ message: "Internal server error. Please try again later." });
+}
+})
+
+app.patch('/proceed/:orderid', async (req, res) => {
+    const { orderid } = req.params;
+    try {
+      const updatedOrder = await ordered.findOneAndUpdate(
+        { orderid: orderid },
+         { cancel: false } ,
+        { new: true }
+      );
+  
+      if (!updatedOrder) {
+        return res.status(404).json({ success: false, message: 'Order not found' });
+      }
+  
+      res.status(200).json({ success: true, message: 'Order cancelled successfully', order: updatedOrder });
+    } catch (error) {
+      console.error('Error cancelling order:', error);
+      res.status(500).json({ success: false, message: 'Error cancelling order' });
+    }
+  });
+  
+  app.patch('/status/:orderid', async (req, res) => {
+    const { orderid } = req.params;
+    const newStatus  = req.body.status;
+    try {
+      const updatedOrder = await ordered.findOne(
+        { orderid: orderid }
+      );
+  
+      if (!updatedOrder) {
+        return res.status(404).json({ success: false, message: 'status not found' });
+      }
+      updatedOrder.status=newStatus;
+      await  updatedOrder.save();
+      res.status(200).json(updatedOrder);
+    } catch (error) {
+      console.error('Error Status updating:', error);
+      res.status(500).json({ success: false, message: 'Error Status updating' });
+    }
+  });
+  
+
+app.get('/v1/order/:userid', async (req, res) => {
+    const { userid} = req.params;
+    try {
+        const searchpro = await ordered.find({ userid: userid });
+        if (searchpro.length > 0) {
+            res.status(200).json(searchpro);
+        } else {
+            res.status(404).json({ message: 'No items found in the cart for this user' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+app.get('/order/:orderid', async (req, res) => {
+    const { orderid} = req.params;
+    try {
+        const searchpro = await ordered.findOne({ orderid: orderid });
+            res.status(200).json(searchpro);
+       
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+
+app.delete('/cart/:userid', async (req, res) => {
+    const { userid } = req.params;
+    try {
+      const result = await cartproducts.deleteMany({ userid });
+      if (result.deletedCount > 0) {
+        res.json({ message: 'Cart items deleted successfully' });
+      } else {
+        res.status(404).json({ error: 'No cart items found for the given user ID' });
+      }
+    } catch (error) {
+      res.status(500).json({ error: 'Error deleting cart items' });
+    }
+  });
+
+  app.get('/v1/order/:userid', async (req, res) => {
+    const { userid} = req.params;
+    try {
+        const searchpro = await ordered.find({ userid: userid });
+        if (searchpro.length > 0) {
+            console.log(searchpro)
+            res.status(200).json(searchpro);
+        } else {
+            res.status(404).json({ message: 'No items found in the recent orders for this user' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 const PORT = process.env.PORT || 3005;
 app.listen(PORT, () => {
