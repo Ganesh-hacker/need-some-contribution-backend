@@ -41,7 +41,7 @@ const CartproductsSchema= new mongoose.Schema({
         type:String,
         required:true
     },
-    imageUrl: {
+    imgurl1: {
         type: String,
         required: true
     },
