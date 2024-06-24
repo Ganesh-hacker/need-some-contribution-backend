@@ -189,7 +189,7 @@ app.get('/medicine/:id', async (req, res) => {
         if (searchpro) {
             res.status(200).json(searchpro);
         } else {
-            res.status(404).json({ message: 'Dress not found' });
+            res.status(404).json({ message: 'Item not found' });
         }
     } catch (error) {
         console.error(error);
@@ -200,26 +200,32 @@ app.get('/medicine/:id', async (req, res) => {
 app.post("/addingtocart/:id", async (req, res) => {
     const { id } = req.params;
 
+  
     const data = {
         id: id, 
         userid:req.body.userid,
         name: req.body.name,
         manufacturers:req.body.manufacturers,
-        imageUrl: req.body.imgurl1,
+        imgurl1: req.body.imgurl1,
         MRP: req.body.MRP,
         price:req.body.MRP
     };
 
     try {
-        await cartproducts.insertMany(data);
-        // await wishlist.findOneAndDelete({ id: id, name: req.body.name });
+      const existingProduct = await cartproducts.findOne({ id: id, userid:data.userid });
+      if (existingProduct) {
+        console.log("Product is already in the cart:", data);
+        res.status(200).send("Product is already in the cart");
+      } else {
+        await cartproducts.create(data);
         console.log("Product added to cart:", data);
         res.status(200).redirect('/cartdetails');
+      }
     } catch (error) {
-        console.error("Error adding product to cart:", error);
-        res.status(500).send("Internal server error. Please try again later.");
+      console.error("Error adding product to cart:", error);
+      res.status(500).send("Internal server error. Please try again later.");
     }
-});
+  });
 app.get('/v1/cart/:userid', async (req, res) => {
     const { userid} = req.params;
     try {
@@ -299,31 +305,17 @@ app.post('/checkout', async (req, res) => {
     }
 });
 
-app.post("/address/:userid", async (req, res) => {
-    const { userid } = req.params;
-
-    const data = {
-        userid:userid, 
-        name: req.body.name,
-        number: req.body.number,
-        pincode: req.body.pincode,
-        houseNumber: req.body.houseNumber,
-        area: req.body.area,
-        landmark: req.body.landmark,
-        town: req.body.town,
-        state: req.body.state,
-    };
-
+app.post('/address/:userid', async (req, res) => {
     try {
-        await addresslist.insertMany(data);
-
-        console.log("address added:", data);
-        res.status(200).redirect('/purchased');
+      const { userid } = req.params;
+      const addressData = { ...req.body, userid };
+      const newAddress = new addresslist(addressData);
+      await newAddress.save();
+      res.status(201).json(newAddress);
     } catch (error) {
-        console.error("Error adding product to cart:", error);
-        res.status(500).send("Internal server error. Please try again later.");
+      res.status(400).json({ message: 'Error creating address', error: error.message });
     }
-});
+  });
 app.get('/address/:userid', async (req, res) => {
     const { userid } = req.params;
     try {
@@ -354,36 +346,22 @@ app.get('/v1/address/:id', async (req, res) => {
     }
 });
 
-app.patch("/v1/address/:id/:userid", async (req, res) => {
+app.patch('/address/:userId/:addressId', async (req, res) => {
     try {
-        const { id,userid } = req.params;
-        const updateData = {
-            userid:userid,
-            name: req.body.name,
-            number: req.body.number,
-            pincode: req.body.pincode,
-            houseNumber: req.body.houseNumber,
-            area: req.body.area,
-            landmark: req.body.landmark,
-            town: req.body.town,
-            state: req.body.state,
-        };
-
-        // Find the user by _id and update
-        const updatedUser = await addresslist.findByIdAndUpdate(id, updateData, { new: true });
-        console.log(updateUser)
-
-        if (!updatedUser) {
-            return res.status(404).send("address not found");
-            console.log("not found")
-        }
-
-        res.status(200).json(updatedUser);
+      const { userId, addressId } = req.params;
+      const updatedAddress = await addresslist.findOneAndUpdate(
+        {  userid:userId, _id: addressId },
+        req.body,
+        { new: true }
+      );
+      if (!updatedAddress) {
+        return res.status(404).json({ message: 'Address not found' });
+      }
+      res.json(updatedAddress);
     } catch (error) {
-        console.error("Error updating address:", error);
-        res.status(500).send("Internal server error. Please try again later.");
+      res.status(400).json({ message: 'Error updating address', error: error.message });
     }
-});
+  });
 
 app.delete("/address/:_id/:userid", async (req, res) => {
     const itemId = req.params._id;
